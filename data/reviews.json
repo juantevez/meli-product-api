@@ -1,0 +1,68 @@
+[
+  {
+    "id": "REV001",
+    "product_id": "MLA123456",
+    "user_id": "USER001",
+    "user_name": "Juan.Perez",
+    "rating": 5,
+    "title": "Excelente producto",
+    "comment": "El iPhone 14 Pro Max superó mis expectativas. La cámara es increíble y la batería dura todo el día.",
+    "created_at": "2024-11-20T14:30:00Z",
+    "helpful_count": 45
+  },
+  {
+    "id": "REV002",
+    "product_id": "MLA123456",
+    "user_id": "USER002",
+    "user_name": "Maria_Lopez",
+    "rating": 4,
+    "title": "Muy bueno pero caro",
+    "comment": "La calidad es indiscutible, pero el precio es elevado. Vale la pena si tienes el presupuesto.",
+    "created_at": "2024-11-25T10:15:00Z",
+    "helpful_count": 23
+  },
+  {
+    "id": "REV003",
+    "product_id": "MLA789012",
+    "user_id": "USER003",
+    "user_name": "Carlos_Tech",
+    "rating": 5,
+    "title": "Perfecta para trabajo",
+    "comment": "La Lenovo IdeaPad 3 es ideal para trabajo de oficina. Rápida y confiable.",
+    "created_at": "2024-10-15T09:00:00Z",
+    "helpful_count": 18
+  },
+  {
+    "id": "REV004",
+    "product_id": "MLA789012",
+    "user_id": "USER004",
+    "user_name": "Ana_Developer",
+    "rating": 4,
+    "title": "Buena relación precio-calidad",
+    "comment": "Para programar funciona bien, aunque le agregaría más RAM para tareas pesadas.",
+    "created_at": "2024-10-20T16:45:00Z",
+    "helpful_count": 12
+  },
+  {
+    "id": "REV005",
+    "product_id": "MLA345678",
+    "user_id": "USER005",
+    "user_name": "Roberto_Cine",
+    "rating": 5,
+    "title": "Imagen espectacular",
+    "comment": "La calidad de imagen 4K es impresionante. Perfecta para películas y series.",
+    "created_at": "2024-11-10T20:00:00Z",
+    "helpful_count": 34
+  },
+  {
+    "id": "REV006",
+    "product_id": "MLA901234",
+    "user_id": "USER006",
+    "user_name": "Diego_Runner",
+    "rating": 5,
+    "title": "Las mejores zapatillas",
+    "comment": "Súper cómodas para correr. El Air Max se siente genial.",
+    "created_at": "2024-12-01T08:30:00Z",
+    "helpful_count": 56
+  }
+]

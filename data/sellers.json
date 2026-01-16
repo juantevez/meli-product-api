@@ -1,0 +1,38 @@
+[
+  {
+    "id": "MLA123456",
+    "nickname": "TechStore_Oficial",
+    "reputation_level": "green",
+    "total_sales": 15234,
+    "reputation_score": 4.8,
+    "years_active": 5,
+    "is_official_store": true
+  },
+  {
+    "id": "MLA789012",
+    "nickname": "CompuMundo_AR",
+    "reputation_level": "green",
+    "total_sales": 8921,
+    "reputation_score": 4.6,
+    "years_active": 3,
+    "is_official_store": false
+  },
+  {
+    "id": "MLA345678",
+    "nickname": "ElectroHogar_Premium",
+    "reputation_level": "yellow",
+    "total_sales": 3456,
+    "reputation_score": 4.3,
+    "years_active": 2,
+    "is_official_store": false
+  },
+  {
+    "id": "MLA901234",
+    "nickname": "Deportes_Total",
+    "reputation_level": "green",
+    "total_sales": 21567,
+    "reputation_score": 4.9,
+    "years_active": 7,
+    "is_official_store": true
+  }
+]

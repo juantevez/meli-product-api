@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Documentation
+*.md
+README.md
+ARCHITECTURE.md
+docs/
+
+# Tests
+*_test.go
+test/
+coverage.out
+coverage.html
+
+# Build artifacts
+bin/
+dist/
+tmp/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/
+go.work

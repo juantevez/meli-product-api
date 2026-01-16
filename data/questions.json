@@ -1,0 +1,46 @@
+[
+  {
+    "id": "Q001",
+    "product_id": "MLA123456",
+    "user_id": "USER011",
+    "user_name": "Pedro_R",
+    "question": "¿Tiene garantía oficial de Apple?",
+    "answer": "Hola! Sí, cuenta con garantía oficial Apple de 1 año.",
+    "question_date": "2024-12-08T10:00:00Z",
+    "answer_date": "2024-12-08T11:00:00Z",
+    "likes": 8
+  },
+  {
+    "id": "Q002",
+    "product_id": "MLA123456",
+    "user_id": "USER012",
+    "user_name": "Ana_M",
+    "question": "¿Hacen envíos al interior?",
+    "answer": "Sí, hacemos envíos a todo el país con MercadoEnvíos.",
+    "question_date": "2024-12-09T14:30:00Z",
+    "answer_date": "2024-12-09T15:00:00Z",
+    "likes": 5
+  },
+  {
+    "id": "Q003",
+    "product_id": "MLA789012",
+    "user_id": "USER013",
+    "user_name": "Luis_Dev",
+    "question": "¿Se le puede ampliar la RAM?",
+    "answer": "Sí, tiene ranura adicional para agregar hasta 16GB total.",
+    "question_date": "2024-11-15T09:00:00Z",
+    "answer_date": "2024-11-15T10:30:00Z",
+    "likes": 12
+  },
+  {
+    "id": "Q004",
+    "product_id": "MLA345678",
+    "user_id": "USER014",
+    "user_name": "Marta_Home",
+    "question": "¿Viene con soporte de pared?",
+    "answer": "No incluye soporte, se vende por separado.",
+    "question_date": "2024-11-20T16:00:00Z",
+    "answer_date": "2024-11-20T17:00:00Z",
+    "likes": 3
+  }
+]

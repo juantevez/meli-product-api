@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  meli-product-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meli-product-api-go
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_PORT=8080
+      - SERVER_HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      - DB_TYPE=json
+      - PRODUCTS_FILE=/app/data/products.json
+      - SELLERS_FILE=/app/data/sellers.json
+      - REVIEWS_FILE=/app/data/reviews.json
+      - QUESTIONS_FILE=/app/data/questions.json
+    volumes:
+      - ./data:/app/data:ro  # Read-only mount
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - meli-network
+    labels:
+      - "com.meli.service=product-api"
+      - "com.meli.language=golang"
+      - "com.meli.environment=production"
+
+  # Optional: Add SQLite database container for future migration
+  # meli-db:
+  #   image: nouchka/sqlite3:latest
+  #   container_name: meli-db
+  #   volumes:
+  #     - ./data/meli.db:/data/meli.db
+  #   networks:
+  #     - meli-network
+
+networks:
+  meli-network:
+    driver: bridge
+    name: meli-network
+    
