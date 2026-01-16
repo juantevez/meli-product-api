@@ -1,12 +1,15 @@
 package model
 
-type Seller struct {
-	ID              string  `json:"id"`
-	Nickname        string  `json:"nickname"`
-	ReputationLevel string  `json:"reputation_level"`
-	TotalSales      int     `json:"total_sales"`
-	ReputationScore float64 `json:"reputation_score"`
-	YearsActive     int     `json:"years_active"`
-	IsOfficialStore bool    `json:"is_official_store"`
-}
+import "time"
 
+type Review struct {
+	ID           string    `json:"id"`
+	ProductID    string    `json:"product_id"`
+	UserID       string    `json:"user_id"`
+	UserName     string    `json:"user_name"`
+	Rating       int       `json:"rating"`
+	Title        string    `json:"title"`
+	Comment      string    `json:"comment"`
+	CreatedAt    time.Time `json:"created_at"`
+	HelpfulCount int       `json:"helpful_count"`
+}
