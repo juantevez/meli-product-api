@@ -1,82 +1,161 @@
-package config
+package main
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"log/slog"
+	"meli-product-api/internal/application/service"
+	"meli-product-api/internal/infrastructure/adapter/http/handler"
+	jsonRepo "meli-product-api/internal/infrastructure/adapter/repository/json"
+	"meli-product-api/internal/infrastructure/config"
+	"meli-product-api/internal/infrastructure/router"
+	"net/http"
 	"os"
-	"strconv"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
-type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	Logger   LoggerConfig
-}
-
-type ServerConfig struct {
-	Port string
-	Host string
-}
-
-type DatabaseConfig struct {
-	Type          string
-	ProductsFile  string
-	SellersFile   string
-	ReviewsFile   string
-	QuestionsFile string
-}
-
-type LoggerConfig struct {
-	Level  string
-	Format string
-}
-
-func Load() *Config {
-	return &Config{
-		Server: ServerConfig{
-			Port: getEnv("SERVER_PORT", "8080"),
-			Host: getEnv("SERVER_HOST", "0.0.0.0"),
-		},
-		Database: DatabaseConfig{
-			Type:          getEnv("DB_TYPE", "json"),
-			ProductsFile:  getEnv("PRODUCTS_FILE", "./data/products.json"),
-			SellersFile:   getEnv("SELLERS_FILE", "./data/sellers.json"),
-			ReviewsFile:   getEnv("REVIEWS_FILE", "./data/reviews.json"),
-			QuestionsFile: getEnv("QUESTIONS_FILE", "./data/questions.json"),
-		},
-		Logger: LoggerConfig{
-			Level:  getEnv("LOG_LEVEL", "info"),
-			Format: getEnv("LOG_FORMAT", "json"),
-		},
+func main() {
+	// Load configuration
+	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("Invalid configuration: %v", err)
 	}
+
+	// Setup logger
+	logger := setupLogger(cfg.Logger)
+	logger.Info("Starting MELI Product API",
+		"version", "1.0.0",
+		"port", cfg.Server.Port,
+	)
+
+	// Initialize repositories
+	logger.Info("Initializing repositories...")
+
+	productRepo, err := jsonRepo.NewProductRepository(cfg.Database.ProductsFile)
+	if err != nil {
+		logger.Error("Failed to initialize product repository", "error", err)
+		log.Fatalf("Failed to initialize product repository: %v", err)
+	}
+
+	sellerRepo, err := jsonRepo.NewSellerRepository(cfg.Database.SellersFile)
+	if err != nil {
+		logger.Error("Failed to initialize seller repository", "error", err)
+		log.Fatalf("Failed to initialize seller repository: %v", err)
+	}
+
+	reviewRepo, err := jsonRepo.NewReviewRepository(cfg.Database.ReviewsFile)
+	if err != nil {
+		logger.Error("Failed to initialize review repository", "error", err)
+		log.Fatalf("Failed to initialize review repository: %v", err)
+	}
+
+	questionRepo, err := jsonRepo.NewQuestionRepository(cfg.Database.QuestionsFile)
+	if err != nil {
+		logger.Error("Failed to initialize question repository", "error", err)
+		log.Fatalf("Failed to initialize question repository: %v", err)
+	}
+
+	logger.Info("✓ Repositories initialized successfully")
+
+	// Initialize services
+	logger.Info("Initializing services...")
+
+	aggregatorService := service.NewProductAggregatorService(
+		productRepo,
+		sellerRepo,
+		reviewRepo,
+		questionRepo,
+		logger,
+	)
+
+	searchService := service.NewProductSearchService(
+		productRepo,
+		logger,
+	)
+
+	logger.Info("✓ Services initialized successfully")
+
+	// Initialize handlers
+	productHandler := handler.NewProductHandler(
+		aggregatorService,
+		searchService,
+		logger,
+	)
+
+	// Setup router
+	r := router.NewRouter(productHandler, logger)
+
+	// HTTP Server configuration
+	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
+	srv := &http.Server{
+		Addr:         addr,
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	// Start server in goroutine
+	go func() {
+		logger.Info("╔═══════════════════════════════════════════════════════════════")
+		logger.Info("║ 🚀 MELI Product API Server Started")
+		logger.Info("║ 📍 Listening on: http://" + addr)
+		logger.Info("║ 🏥 Health Check: http://" + addr + "/health")
+		logger.Info("║ 📚 API Docs: http://" + addr + "/api/v1/products")
+		logger.Info("╚═══════════════════════════════════════════════════════════════")
+
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("Server failed to start", "error", err)
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	logger.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error("Server forced to shutdown", "error", err)
+		log.Fatal(err)
+	}
+
+	logger.Info("Server exited gracefully")
 }
 
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
+func setupLogger(cfg config.LoggerConfig) *slog.Logger {
+	var level slog.Level
+	switch cfg.Level {
+	case "debug":
+		level = slog.LevelDebug
+	case "info":
+		level = slog.LevelInfo
+	case "warn":
+		level = slog.LevelWarn
+	case "error":
+		level = slog.LevelError
+	default:
+		level = slog.LevelInfo
 	}
-	return defaultValue
-}
 
-func getEnvAsInt(key string, defaultValue int) int {
-	valueStr := getEnv(key, "")
-	if value, err := strconv.Atoi(valueStr); err == nil {
-		return value
+	opts := &slog.HandlerOptions{
+		Level: level,
 	}
-	return defaultValue
-}
 
-func getEnvAsBool(key string, defaultValue bool) bool {
-	valueStr := getEnv(key, "")
-	if value, err := strconv.ParseBool(valueStr); err == nil {
-		return value
+	var handler slog.Handler
+	if cfg.Format == "json" {
+		handler = slog.NewJSONHandler(os.Stdout, opts)
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, opts)
 	}
-	return defaultValue
-}
 
-func (c *Config) Validate() error {
-	// Add validation logic here
-	if c.Server.Port == "" {
-		log.Fatal("SERVER_PORT is required")
-	}
-	return nil
+	return slog.New(handler)
 }

@@ -1,54 +1,47 @@
 # ============================================
 # STAGE 1: Build
 # ============================================
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
-# Metadata
 LABEL maintainer="Juan - Backend Developer"
 LABEL description="MELI Product API - Build Stage"
 
-# Install build dependencies
 RUN apk add --no-cache git make
 
-# Set working directory
 WORKDIR /app
 
-# Copy go mod files
+# Copy go modules
 COPY go.mod go.sum ./
-
-# Download dependencies
 RUN go mod download
 
 # Copy source code
 COPY . .
 
-# Build application
+# Build application (output to /app/api directamente)
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags="-w -s" \
-    -o /app/bin/api \
-    ./cmd/api
+    -o api \
+    ./cmd/api/main.go
 
 # ============================================
 # STAGE 2: Runtime
 # ============================================
 FROM alpine:latest
 
-# Metadata
 LABEL maintainer="Juan - Backend Developer"
 LABEL description="MELI Product API - Production Image"
 LABEL version="1.0.0"
 
-# Install runtime dependencies
+# Install dependencies
 RUN apk --no-cache add ca-certificates tzdata curl
 
-# Create app user (security best practice)
+# Create non-root user
 RUN addgroup -S app && adduser -S app -G app
 
-# Set working directory
 WORKDIR /app
 
-# Copy binary from builder
-COPY --from=builder /app/bin/api .
+# Copy binary from builder (ahora está en /app/api)
+COPY --from=builder --chmod=755 /app/api .
 
 # Copy data files
 COPY --from=builder /app/data ./data

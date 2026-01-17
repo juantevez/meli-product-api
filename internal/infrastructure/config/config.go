@@ -3,7 +3,6 @@ package config
 import (
 	"log"
 	"os"
-	"strconv"
 )
 
 type Config struct {
@@ -57,6 +56,7 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+/*
 func getEnvAsInt(key string, defaultValue int) int {
 	valueStr := getEnv(key, "")
 	if value, err := strconv.Atoi(valueStr); err == nil {
@@ -72,6 +72,7 @@ func getEnvAsBool(key string, defaultValue bool) bool {
 	}
 	return defaultValue
 }
+*/
 
 func (c *Config) Validate() error {
 	// Add validation logic here

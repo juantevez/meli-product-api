@@ -7,106 +7,98 @@ DOCKER_CONTAINER=meli-api-go
 GO_VERSION=1.21
 PORT=8080
 
-# Colors for output
-GREEN=\033[0;32m
-YELLOW=\033[1;33m
-RED=\033[0;31m
-NC=\033[0m # No Color
-
 ## help: Display this help message
 help:
-	@echo "$(GREEN)Available commands:$(NC)"
-	@echo ""
-	@grep -E '^##' Makefile | sed 's/## /  /'
-	@echo ""
+	@echo Available commands:
+	@echo.
+	@grep -E "^##" Makefile | sed "s/## /  /"
+	@echo.
 
 ## build: Build the Go application
 build:
-	@echo "$(YELLOW)Building application...$(NC)"
-	@go build -o bin/api cmd/api/main.go
-	@echo "$(GREEN)✓ Build complete: bin/api$(NC)"
+	@echo Building application...
+	@go build -o bin/api.exe cmd/api/main.go
+	@echo Build complete: bin/api.exe
 
 ## run: Run the application locally
 run:
-	@echo "$(YELLOW)Starting application...$(NC)"
+	@echo Starting application...
 	@go run cmd/api/main.go
 
-## dev: Run with hot reload using air (install: go install github.com/cosmtrek/air@latest)
+## dev: Run with hot reload using air
 dev:
-	@echo "$(YELLOW)Starting development server with hot reload...$(NC)"
+	@echo Starting development server with hot reload...
 	@air
 
 ## test: Run all tests
 test:
-	@echo "$(YELLOW)Running tests...$(NC)"
+	@echo Running tests...
 	@go test -v -race -coverprofile=coverage.out ./...
-	@echo "$(GREEN)✓ Tests complete$(NC)"
+	@echo Tests complete
 
 ## test-coverage: Run tests with coverage report
 test-coverage: test
-	@echo "$(YELLOW)Generating coverage report...$(NC)"
+	@echo Generating coverage report...
 	@go tool cover -html=coverage.out -o coverage.html
-	@echo "$(GREEN)✓ Coverage report: coverage.html$(NC)"
+	@echo Coverage report: coverage.html
 
 ## benchmark: Run benchmarks
 benchmark:
-	@echo "$(YELLOW)Running benchmarks...$(NC)"
+	@echo Running benchmarks...
 	@go test -bench=. -benchmem ./...
 
 ## deps: Install/Update dependencies
 deps:
-	@echo "$(YELLOW)Downloading dependencies...$(NC)"
+	@echo Downloading dependencies...
 	@go mod download
 	@go mod tidy
-	@echo "$(GREEN)✓ Dependencies updated$(NC)"
+	@echo Dependencies updated
 
 ## format: Format Go code
 format:
-	@echo "$(YELLOW)Formatting code...$(NC)"
+	@echo Formatting code...
 	@gofmt -s -w .
-	@echo "$(GREEN)✓ Code formatted$(NC)"
+	@echo Code formatted
 
-## lint: Run linter (install: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
+## lint: Run linter
 lint:
-	@echo "$(YELLOW)Running linter...$(NC)"
+	@echo Running linter...
 	@golangci-lint run ./...
-	@echo "$(GREEN)✓ Linting complete$(NC)"
+	@echo Linting complete
 
 ## vet: Run go vet
 vet:
-	@echo "$(YELLOW)Running go vet...$(NC)"
+	@echo Running go vet...
 	@go vet ./...
-	@echo "$(GREEN)✓ Vet complete$(NC)"
+	@echo Vet complete
 
 ## clean: Clean build artifacts
 clean:
-	@echo "$(YELLOW)Cleaning...$(NC)"
-	@rm -rf bin/
-	@rm -f coverage.out coverage.html
+	@echo Cleaning...
+	@if exist bin rmdir /s /q bin
+	@if exist coverage.out del coverage.out
+	@if exist coverage.html del coverage.html
 	@go clean
-	@echo "$(GREEN)✓ Clean complete$(NC)"
+	@echo Clean complete
 
 ## docker-build: Build Docker image
 docker-build:
-	@echo "$(YELLOW)Building Docker image...$(NC)"
+	@echo Building Docker image...
 	@docker build -t $(DOCKER_IMAGE):latest .
-	@echo "$(GREEN)✓ Docker image built: $(DOCKER_IMAGE):latest$(NC)"
+	@echo Docker image built: $(DOCKER_IMAGE):latest
 
 ## docker-run: Run Docker container
 docker-run:
-	@echo "$(YELLOW)Starting Docker container...$(NC)"
-	@docker run -d \
-		-p $(PORT):8080 \
-		--name $(DOCKER_CONTAINER) \
-		$(DOCKER_IMAGE):latest
-	@echo "$(GREEN)✓ Container running: http://localhost:$(PORT)$(NC)"
+	@echo Starting Docker container...
+	@docker run -d -p $(PORT):8080 --name $(DOCKER_CONTAINER) $(DOCKER_IMAGE):latest
+	@echo Container running: http://localhost:$(PORT)
 
 ## docker-stop: Stop and remove Docker container
 docker-stop:
-	@echo "$(YELLOW)Stopping Docker container...$(NC)"
-	@docker stop $(DOCKER_CONTAINER) 2>/dev/null || true
-	@docker rm $(DOCKER_CONTAINER) 2>/dev/null || true
-	@echo "$(GREEN)✓ Container stopped$(NC)"
+	@echo Stopping Docker container...
+	@docker stop $(DOCKER_CONTAINER) 2>NUL || echo Container not running
+	@docker rm $(DOCKER_CONTAINER) 2>NUL || echo Container not found
+	@echo Container stopped
 
 ## docker-logs: Show Docker container logs
 docker-logs:
@@ -118,15 +110,15 @@ docker-shell:
 
 ## docker-compose-up: Start services with docker-compose
 docker-compose-up:
-	@echo "$(YELLOW)Starting services with docker-compose...$(NC)"
+	@echo Starting services with docker-compose...
 	@docker-compose up -d
-	@echo "$(GREEN)✓ Services started$(NC)"
+	@echo Services started
 
 ## docker-compose-down: Stop services with docker-compose
 docker-compose-down:
-	@echo "$(YELLOW)Stopping services...$(NC)"
+	@echo Stopping services...
 	@docker-compose down
-	@echo "$(GREEN)✓ Services stopped$(NC)"
+	@echo Services stopped
 
 ## docker-compose-logs: Show docker-compose logs
 docker-compose-logs:
@@ -134,40 +126,34 @@ docker-compose-logs:
 
 ## docker-clean: Remove all Docker artifacts
 docker-clean: docker-stop
-	@echo "$(YELLOW)Cleaning Docker artifacts...$(NC)"
-	@docker rmi $(DOCKER_IMAGE):latest 2>/dev/null || true
+	@echo Cleaning Docker artifacts...
+	@docker rmi $(DOCKER_IMAGE):latest 2>NUL || echo Image not found
 	@docker system prune -f
-	@echo "$(GREEN)✓ Docker cleaned$(NC)"
+	@echo Docker cleaned
 
 ## install-tools: Install development tools
 install-tools:
-	@echo "$(YELLOW)Installing development tools...$(NC)"
+	@echo Installing development tools...
 	@go install github.com/cosmtrek/air@latest
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@go install github.com/swaggo/swag/cmd/swag@latest
-	@echo "$(GREEN)✓ Tools installed$(NC)"
+	@echo Tools installed
 
 ## swagger: Generate Swagger documentation
 swagger:
-	@echo "$(YELLOW)Generating Swagger docs...$(NC)"
+	@echo Generating Swagger docs...
 	@swag init -g cmd/api/main.go -o docs
-	@echo "$(GREEN)✓ Swagger docs generated$(NC)"
+	@echo Swagger docs generated
 
 ## check: Run all checks (format, vet, lint, test)
 check: format vet lint test
-	@echo "$(GREEN)✓ All checks passed$(NC)"
+	@echo All checks passed
 
 ## all: Build, test, and create Docker image
 all: clean deps format vet test build docker-build
-	@echo "$(GREEN)✓ Build pipeline complete$(NC)"
+	@echo Build pipeline complete
 
 ## health: Check if application is running
 health:
-	@curl -f http://localhost:$(PORT)/health || (echo "$(RED)✗ Service not responding$(NC)" && exit 1)
-	@echo "$(GREEN)✓ Service is healthy$(NC)"
-
-## load-test: Simple load test (requires apache bench: apt-get install apache2-utils)
-load-test:
-	@echo "$(YELLOW)Running load test...$(NC)"
-	@ab -n 1000 -c 10 http://localhost:$(PORT)/api/v1/products/MLA123456
-	
+	@curl -f http://localhost:$(PORT)/health || echo Service not responding
+	@echo Service is healthy
